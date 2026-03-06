@@ -26,3 +26,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 tests/temp
+
+# Temporary and redundant files
+dropped_shapes.json
+package-lock.json
+bun.lock
+
