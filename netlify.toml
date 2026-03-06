@@ -1,3 +1,12 @@
 [build]
-  command = "bun run build"
-  publish = "dist"
+  command = "bun install && bun build ./src/index.ts --outdir ./example/dist --target browser --format esm"
+  publish = "example"
+
+[dev]
+  framework = "#static"
+  command = "bun build ./src/index.ts --outdir ./example/dist --target browser --format esm --watch"
+  port = 8888
+  publish = "example"
+
+[build.environment]
+  BUN_VERSION = "latest"

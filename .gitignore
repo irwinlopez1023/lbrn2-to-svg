@@ -32,3 +32,6 @@ dropped_shapes.json
 package-lock.json
 bun.lock
 
+
+# Local Netlify folder
+.netlify

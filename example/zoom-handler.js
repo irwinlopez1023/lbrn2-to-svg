@@ -1,8 +1,13 @@
 export class ZoomPanHandler {
     constructor(containerId, wrapperId, config = {}) {
         this.container = document.getElementById(containerId);
+        if (!this.container) {
+            throw new Error(`ZoomPanHandler: container element with id '${containerId}' not found`);
+        }
         this.wrapper = document.getElementById(wrapperId);
-        if (!this.container || !this.wrapper) return;
+        if (!this.wrapper) {
+            throw new Error(`ZoomPanHandler: wrapper element with id '${wrapperId}' not found`);
+        }
         this.scale = config.scale || 0.8;
         this.posX = config.posX || 0;
         this.posY = config.posY || 0;
