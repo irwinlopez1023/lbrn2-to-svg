@@ -274,6 +274,19 @@ function parseVertListString(vertListStr: string): Lbrn2Vec2[] {
   return vertices;
 }
 
+/**
+ * Parses an LBRN2 file's XML content into a structured JavaScript object.
+ *
+ * This function validates the XML, then recursively processes shapes,
+ * resolving data-sharing for paths (VertList/PrimList) and parsing
+ * transform strings, text-as-path conversions, and other complexities
+ * of the LBRN2 format. Finally, it flattens the shape hierarchy, composing
+ * transformations down the tree.
+ *
+ * @param xmlString The raw XML content of the .lbrn2 file.
+ * @returns A structured `LightBurnProjectFile` object with a flat list of shapes.
+ * @throws Will throw an error if the XML is invalid or the root <LightBurnProject> element is missing.
+ */
 export function parseLbrn2(xmlString: string): LightBurnProjectFile {
   if (XMLValidator.validate(xmlString) !== true) {
     throw new Error("Invalid XML structure for LBRN2 file.");
@@ -458,9 +471,12 @@ export function parseLbrn2(xmlString: string): LightBurnProjectFile {
         return shape;
       };
 
-      parsed.LightBurnProject.Shape = parsed.LightBurnProject.Shape.map(
+      const processedShapes = parsed.LightBurnProject.Shape.map(
         (s) => parseShapeRecursive(s)
       ).filter(Boolean);
+
+      parsed.LightBurnProject.Shape = flattenShapes(processedShapes);
+
     } else {
       parsed.LightBurnProject.Shape = [];
     }
@@ -469,4 +485,37 @@ export function parseLbrn2(xmlString: string): LightBurnProjectFile {
   }
 
   return parsed;
+}
+
+// Helper function to compose two transforms (g * c)
+function composeTransforms(g: Lbrn2XForm, c: Lbrn2XForm): Lbrn2XForm {
+    return {
+        a: g.a * c.a + g.c * c.b,
+        b: g.b * c.a + g.d * c.b,
+        c: g.a * c.c + g.c * c.d,
+        d: g.b * c.c + g.d * c.d,
+        e: g.a * c.e + g.c * c.f + g.e,
+        f: g.b * c.e + g.d * c.f + g.f,
+    };
+}
+
+function flattenShapes(shapes: any[], parentXForm?: Lbrn2XForm): any[] {
+  const flattened: any[] = [];
+
+  for (const shape of shapes) {
+    // All shapes must have a transform at this point, parsed by parseShapeRecursive
+    const currentXForm = shape.XForm || { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+    const newXForm = parentXForm ? composeTransforms(parentXForm, currentXForm) : currentXForm;
+
+    if (shape.Type === 'Group') {
+      if (shape.Children) {
+        flattened.push(...flattenShapes(shape.Children, newXForm));
+      }
+    } else {
+      // Create a new shape object with the composed transform
+      const newShape = { ...shape, XForm: newXForm };
+      flattened.push(newShape);
+    }
+  }
+  return flattened;
 }

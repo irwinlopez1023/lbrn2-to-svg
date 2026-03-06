@@ -119,6 +119,16 @@ function shapeToSvgElement(
   }
 }
 
+/**
+ * Converts a parsed LightBurn project file object into an SVG string.
+ *
+ * This function takes the structured project data from `parseLbrn2`,
+ * generates SVG elements for each shape, calculates the total bounding box,
+ * and constructs a complete, standalone SVG file as a string.
+ *
+ * @param project The parsed LightBurn project file object.
+ * @returns A string containing the complete SVG file.
+ */
 export function lbrn2ToSvg(project: LightBurnProjectFile): string {
   let shapes = project.LightBurnProject.Shape || [];
   if (!Array.isArray(shapes)) {
