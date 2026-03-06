@@ -162,9 +162,10 @@
       const warningLogElement = document.getElementById("warning-log");
 
       let currentObjectUrl = null;
+      let zoomHandler = null;
 
       try {
-        new ZoomPanHandler("svg-container", "zoom-wrapper");
+        zoomHandler = new ZoomPanHandler("svg-container", "zoom-wrapper");
       } catch (error) {
         console.error("Error initializing ZoomPanHandler:", error);
       }
@@ -179,7 +180,7 @@
         warningLogElement.classList.add("hidden");
         warningLogElement.innerHTML = "";
 
-        zoomWrapper.style.transform = "translate(0px, 0px) scale(1)";
+        if (zoomHandler) zoomHandler.reset();
 
         if (currentObjectUrl) {
           URL.revokeObjectURL(currentObjectUrl);

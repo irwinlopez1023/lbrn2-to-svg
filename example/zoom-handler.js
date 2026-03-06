@@ -17,6 +17,7 @@ export class ZoomPanHandler {
         this.container.addEventListener('wheel', (e) => {
             e.preventDefault();
             this.scale *= (e.deltaY > 0 ? 0.9 : 1.1);
+            this.scale = Math.min(Math.max(0.1, this.scale), 10);
             this.updateTransform();
         });
         this.container.addEventListener('mousedown', (e) => {
@@ -79,5 +80,12 @@ export class ZoomPanHandler {
     }
     updateTransform() {
         this.wrapper.style.transform = `translate(${this.posX}px, ${this.posY}px) scale(${this.scale})`;
+    }
+
+    reset() {
+        this.scale = 0.8;
+        this.posX = 0;
+        this.posY = 0;
+        this.updateTransform();
     }
 }
